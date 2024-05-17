@@ -6,5 +6,9 @@ export default defineNuxtConfig({
   srcDir: 'src/',
   modules: [
     '@nuxt/ui',
+    '@nuxtjs/supabase',
   ],
+  supabase: {
+    redirect: false,
+  },
 })
