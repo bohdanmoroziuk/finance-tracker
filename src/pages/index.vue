@@ -47,4 +47,11 @@ const view = ref(viewOptions[0])
       color="red"
     />
   </section>
+
+  <section>
+    <TransactionListItem />
+    <TransactionListItem />
+    <TransactionListItem />
+    <TransactionListItem />
+  </section>
 </template>
