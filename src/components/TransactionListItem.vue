@@ -9,6 +9,18 @@ const props = defineProps<Props>()
 
 const { currency } = useCurrency(props.transaction.amount)
 
+const isIncome = computed(() => {
+  return props.transaction.type === 'income'
+})
+
+const iconName = computed(() => {
+  return isIncome.value ? 'i-heroicons-arrow-up-right' : 'i-heroicons-arrow-down-left'
+})
+
+const iconClass = computed(() => {
+  return isIncome.value ? 'text-green-600' : 'text-red-600'
+})
+
 const items = [
   [
     {
@@ -34,8 +46,8 @@ const items = [
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-1">
         <UIcon
-          name="i-heroicons-arrow-up-right"
-          class="text-green-600"
+          :name="iconName"
+          :class="iconClass"
         />
         <p>
           {{ transaction.description }}
