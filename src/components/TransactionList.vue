@@ -8,9 +8,15 @@ interface Props {
   transactions: Transaction[]
 }
 
+interface Emits {
+  (event: 'transaction-deleted'): void
+}
+
 type TransactionsGroupedByDate = Record<string, Transaction[]>
 
 const props = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
 
 const transactionsGroupedByDate = computed<TransactionsGroupedByDate>(() => {
   return groupBy(props.transactions, (transaction: Transaction) => {
@@ -18,7 +24,9 @@ const transactionsGroupedByDate = computed<TransactionsGroupedByDate>(() => {
   })
 })
 
-console.log(transactionsGroupedByDate.value)
+const transactionDeleted = () => {
+  emit('transaction-deleted')
+}
 </script>
 
 <template>
@@ -36,6 +44,7 @@ console.log(transactionsGroupedByDate.value)
         v-for="transaction of transactionsOnDay"
         :key="transaction.id"
         :transaction="transaction"
+        @deleted="transactionDeleted"
       />
     </div>
   </section>

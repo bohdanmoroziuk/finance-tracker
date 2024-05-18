@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import type { Transaction } from '~/types'
+import type { Database, Transaction } from '~/types'
 
 interface Props {
   transaction: Transaction
 }
 
+interface Emits {
+  (event: 'deleted'): void
+}
+
 const props = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
+
+const supabase = useSupabaseClient<Database>()
+
+const toast = useToast()
 
 const { currency } = useCurrency(props.transaction.amount)
 
@@ -21,6 +31,39 @@ const iconClass = computed(() => {
   return isIncome.value ? 'text-green-600' : 'text-red-600'
 })
 
+const isLoading = ref(false)
+
+const handleTransactionDelete = async () => {
+  isLoading.value = true
+
+  try {
+    const { error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('id', props.transaction.id)
+
+    if (error) {
+      throw error
+    }
+
+    emit('deleted')
+
+    toast.add({
+      title: 'Transaction has been deleted',
+      icon: 'i-heroicons-check-circle',
+      color: 'green',
+    })
+  } catch (error) {
+    toast.add({
+      title: (error as Error).message,
+      icon: 'i-heroicons-exclamation-circle',
+      color: 'red',
+    })
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const items = [
   [
     {
@@ -33,9 +76,8 @@ const items = [
     {
       label: 'Delete',
       icon: 'i-heroicons-trash-20-solid',
-      click: () => {
-        console.log('Delete')
-      },
+      iconClass: 'text-red-600',
+      click: handleTransactionDelete,
     },
   ]
 ]
@@ -70,6 +112,7 @@ const items = [
           :popper="{ placement: 'bottom-start' }"
         >
           <UButton
+            :loading="isLoading"
             color="white"
             variant="ghost"
             trailing-icon="i-heroicons-ellipsis-horizontal"

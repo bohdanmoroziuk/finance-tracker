@@ -12,8 +12,8 @@ const props = defineProps<Props>()
 const { currency } = useCurrency(props.amount)
 
 const percentageTrend = computed(() => {
-  if (props.amount === 0) return '∞%'
-  if (props.lastAmount === 0) return '∞%'
+  if (props.amount === 0) return '∞'
+  if (props.lastAmount === 0) return '∞'
 
   const a = Math.max(props.amount, props.lastAmount)
   const b = Math.min(props.amount, props.lastAmount)

@@ -12,5 +12,6 @@ if (isDark.value === false) {
 <template>
   <NuxtLayout>
     <NuxtPage />
+    <UNotifications />
   </NuxtLayout>
 </template>
