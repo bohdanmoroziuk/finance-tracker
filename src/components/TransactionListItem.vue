@@ -64,7 +64,7 @@ const items = [
       <p>
         {{ currency }}
       </p>
-      <div>
+      <div class="w-8">
         <UDropdown
           :items="items"
           :popper="{ placement: 'bottom-start' }"

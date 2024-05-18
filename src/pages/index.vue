@@ -1,18 +1,24 @@
 <script setup lang="ts">
-import type { Database } from '~/types'
+import type { Database, Transaction } from '~/types'
 import { viewOptions } from '~/constants'
 
 const view = ref(viewOptions[0])
 
 const supabase = useSupabaseClient<Database>()
 
-const { data: transactions } = await useAsyncData('transactions', async () => {
+const transactions = ref<Transaction[]>([])
+
+const { data } = await useAsyncData('transactions', async () => {
   const { data, error } = await supabase.from('transactions').select()
 
   if (error) return []
 
   return data
 })
+
+if (data.value) {
+  transactions.value = data.value
+}
 </script>
 
 <template>
@@ -59,11 +65,5 @@ const { data: transactions } = await useAsyncData('transactions', async () => {
     />
   </section>
 
-  <section>
-    <TransactionListItem
-      v-for="transaction of transactions"
-      :key="transaction.id"
-      :transaction="transaction"
-    />
-  </section>
+  <TransactionList :transactions="transactions" />
 </template>
