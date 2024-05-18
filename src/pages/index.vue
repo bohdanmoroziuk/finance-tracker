@@ -1,7 +1,18 @@
 <script setup lang="ts">
+import type { Database } from '~/types'
 import { viewOptions } from '~/constants'
 
 const view = ref(viewOptions[0])
+
+const supabase = useSupabaseClient<Database>()
+
+const { data: transactions } = await useAsyncData('transactions', async () => {
+  const { data, error } = await supabase.from('transactions').select()
+
+  if (error) return []
+
+  return data
+})
 </script>
 
 <template>
@@ -49,9 +60,10 @@ const view = ref(viewOptions[0])
   </section>
 
   <section>
-    <TransactionListItem />
-    <TransactionListItem />
-    <TransactionListItem />
-    <TransactionListItem />
+    <TransactionListItem
+      v-for="transaction of transactions"
+      :key="transaction.id"
+      :transaction="transaction"
+    />
   </section>
 </template>

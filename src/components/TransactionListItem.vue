@@ -1,5 +1,13 @@
 <script setup lang="ts">
-const { currency } = useCurrency(3000)
+import type { Transaction } from '~/types'
+
+interface Props {
+  transaction: Transaction
+}
+
+const props = defineProps<Props>()
+
+const { currency } = useCurrency(props.transaction.amount)
 
 const items = [
   [
@@ -30,12 +38,12 @@ const items = [
           class="text-green-600"
         />
         <p>
-          Salary
+          {{ transaction.description }}
         </p>
       </div>
       <div>
         <UBadge
-          label="Category"
+          :label="transaction.category"
           color="white"
         />
       </div>
