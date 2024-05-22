@@ -4,7 +4,7 @@ export type Database = {
       transactions: {
         Row: {
           amount: number
-          category: string
+          category: string | null
           created_at: string
           description: string | null
           id: number
@@ -12,7 +12,7 @@ export type Database = {
         }
         Insert: {
           amount: number
-          category: string
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: number
@@ -20,7 +20,7 @@ export type Database = {
         }
         Update: {
           amount?: number
-          category?: string
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: number
@@ -45,3 +45,5 @@ export type Database = {
 }
 
 export type Transaction = Database['public']['Tables']['transactions']['Row']
+
+export type TransactionInsert = Database['public']['Tables']['transactions']['Insert']

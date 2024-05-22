@@ -97,6 +97,7 @@ const items = [
       </div>
       <div>
         <UBadge
+          v-if="transaction.category"
           :label="transaction.category"
           color="white"
         />

@@ -6,6 +6,12 @@ import { viewOptions } from '~/constants'
 
 const view = ref(viewOptions[0])
 
+const modal = ref(false)
+
+const showModal = () => {
+  modal.value = true
+}
+
 const supabase = useSupabaseClient<Database>()
 
 const { data, pending, refresh } = await useAsyncData('transactions', async () => {
@@ -100,6 +106,7 @@ const expenseTotal = computed(() => {
         color="white"
         variant="solid"
         label="Add"
+        @click="showModal"
       />
     </div>
   </section>
@@ -117,4 +124,6 @@ const expenseTotal = computed(() => {
       @transaction-deleted="refresh"
     />
   </template>
+
+  <TransactionModal v-model="modal" />
 </template>
