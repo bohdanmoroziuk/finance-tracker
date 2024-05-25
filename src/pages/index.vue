@@ -128,5 +128,8 @@ const expenseTotal = computed(() => {
     />
   </template>
 
-  <TransactionModal v-model="modal" />
+  <TransactionModal
+    v-model="modal"
+    @added="refresh"
+  />
 </template>

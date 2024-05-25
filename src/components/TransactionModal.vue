@@ -2,14 +2,35 @@
 import type { FormSubmitEvent, Form } from '#ui/types'
 
 import { z } from 'zod'
+import { cloneDeep } from 'lodash'
 
-import type { TransactionInsert } from '~/types'
+import type { Database, TransactionInsert } from '~/types'
 import { typeOptions, categoryOptions } from '~/constants'
+
+interface Emits {
+  (event: 'added'): void
+}
+
+const emit = defineEmits<Emits>()
+
+const toast = useToast()
+
+const supabase = useSupabaseClient<Database>()
 
 const isOpen = defineModel<boolean>({ required: true })
 
-const close = () => {
-  isOpen.value = false
+const form = ref<Form<unknown>>()
+
+const errors = computed(() => {
+  return form.value?.errors.value ?? []
+})
+
+const hasErrors = computed(() => {
+  return errors.value.length > 0
+})
+
+const clearErrors = () => {
+  form.value?.clear()
 }
 
 const defaultSchema = z.object({
@@ -42,25 +63,67 @@ const schema = z.intersection(
 
 type Schema = z.output<typeof schema>
 
-const state = ref<Partial<TransactionInsert>>({
-  type: undefined,
+const initialState = {
+  type: 'income',
   amount: 0,
   created_at: undefined,
   description: undefined,
   category: undefined,
-})
+}
 
-const form = ref<Form<unknown>>()
+const state = ref<TransactionInsert>(cloneDeep(initialState))
 
-const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
-  await form.value!.validate()
+const resetState = () => {
+  state.value = cloneDeep(initialState)
+}
 
-  console.log(event.data)
+const close = () => {
+  isOpen.value = false
+
+  resetState()
+  clearErrors()
+}
+
+const isLoading = ref(false)
+
+const submit = async (event: FormSubmitEvent<Schema>) => {
+  if (hasErrors.value) return
+
+  isLoading.value = true
+
+  try {
+    const { error } = await supabase
+      .from('transactions')
+      .upsert(state.value)
+
+    if (error) throw error
+
+    toast.add({
+      title: 'Transaction has been added',
+      icon: 'i-heroicons-check-circle',
+      color: 'green',
+    })
+
+    close()
+
+    emit('added')
+  } catch (error) {
+    toast.add({
+      title: (error as Error).message,
+      icon: 'i-heroicons-exclamation-circle',
+      color: 'red',
+    })
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
 <template>
-  <UModal v-model="isOpen">
+  <UModal
+    v-model="isOpen"
+    prevent-close
+  >
     <UCard>
       <template #header>
         <div class="flex items-center justify-between">
@@ -82,7 +145,7 @@ const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
           :state="state"
           :schema="schema"
           ref="form"
-          @submit="handleSubmit"
+          @submit="submit"
         >
           <UFormGroup
             class="mb-4"
@@ -151,6 +214,7 @@ const handleSubmit = async (event: FormSubmitEvent<Schema>) => {
           </UFormGroup>
 
           <UButton
+            :loading="isLoading"
             type="submit"
             color="black"
             variant="solid"
