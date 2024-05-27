@@ -9,7 +9,9 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const { currency } = useCurrency(props.amount)
+const { amount } = toRefs(props)
+
+const { currency } = useCurrency(amount)
 
 const percentageTrend = computed(() => {
   if (props.amount === 0) return '∞'

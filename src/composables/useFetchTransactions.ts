@@ -1,14 +1,26 @@
 import { sumBy } from 'lodash';
 
-import type { Database } from '~/types'
+import type { Database, Period } from '~/types'
 
-export const useFetchTransactions = async () => {
+export const useFetchTransactions = async (period: MaybeRef<Period>) => {
   const supabase = useSupabaseClient<Database>()
 
-  const { data, pending, refresh } = await useAsyncData('transactions', async () => {
+  const key = computed(() => {
+    const from = unref(period).from.toDateString()
+    const to = unref(period).to.toDateString()
+
+    return `transactions-${from}-${to}`
+  })
+
+  const { data, pending, refresh } = await useAsyncData(key.value, async () => {
+    const from = unref(period).from.toISOString()
+    const to = unref(period).to.toISOString()
+
     const { data, error } = await supabase
       .from('transactions')
       .select()
+      .gte('created_at', from)
+      .lte('created_at', to)
       .order('created_at', { ascending: false })
 
     if (error) return []
@@ -42,6 +54,10 @@ export const useFetchTransactions = async () => {
 
   const expenseTotal = computed(() => {
     return sumBy(expense.value, 'amount')
+  })
+
+  watch(period, async () => {
+    await refresh()
   })
 
   return {

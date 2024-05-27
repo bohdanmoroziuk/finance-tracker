@@ -9,6 +9,8 @@ const showModal = () => {
   modal.value = true
 }
 
+const { current, previous } = useTimePeriod(view)
+
 const {
   transactions,
   pending,
@@ -17,7 +19,12 @@ const {
   expenseCount,
   expenseTotal,
   refresh,
-} = await useFetchTransactions()
+} = await useFetchTransactions(current)
+
+const {
+  incomeTotal: previousIncomeTotal,
+  expenseTotal: previousExpenseTotal,
+} = await useFetchTransactions(previous)
 </script>
 
 <template>
@@ -36,14 +43,14 @@ const {
   <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-16 mb-10">
     <TrendCard
       :amount="incomeTotal"
-      :last-amount="3000"
+      :last-amount="previousIncomeTotal"
       :loading="false"
       title="Income"
       color="green"
     />
     <TrendCard
       :amount="expenseTotal"
-      :last-amount="5000"
+      :last-amount="previousExpenseTotal"
       :loading="false"
       title="Expense"
       color="red"
