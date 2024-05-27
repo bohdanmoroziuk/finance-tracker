@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { sumBy } from 'lodash';
-
-import type { Database } from '~/types'
 import { viewOptions } from '~/constants'
 
 const view = ref(viewOptions[0])
@@ -12,42 +9,15 @@ const showModal = () => {
   modal.value = true
 }
 
-const supabase = useSupabaseClient<Database>()
-
-const { data, pending, refresh } = await useAsyncData('transactions', async () => {
-  const { data, error } = await supabase
-    .from('transactions')
-    .select()
-    .order('created_at', { ascending: false })
-
-  if (error) return []
-
-  return data
-})
-
-const income = computed(() => {
-  return (data.value ?? []).filter((transaction) => transaction.type === 'income')
-})
-
-const expense = computed(() => {
-  return (data.value ?? []).filter((transaction) => transaction.type === 'expense')
-})
-
-const incomeCount = computed(() => {
-  return income.value.length
-})
-
-const expenseCount = computed(() => {
-  return expense.value.length
-})
-
-const incomeTotal = computed(() => {
-  return sumBy(income.value, 'amount')
-})
-
-const expenseTotal = computed(() => {
-  return sumBy(expense.value, 'amount')
-})
+const {
+  transactions,
+  pending,
+  incomeCount,
+  incomeTotal,
+  expenseCount,
+  expenseTotal,
+  refresh,
+} = await useFetchTransactions()
 </script>
 
 <template>
@@ -121,9 +91,9 @@ const expenseTotal = computed(() => {
       class="w-full h-8 mb-2"
     />
   </template>
-  <template v-else-if="data">
+  <template v-else>
     <TransactionList
-      :transactions="data"
+      :transactions="transactions"
       @transaction-deleted="refresh"
     />
   </template>
