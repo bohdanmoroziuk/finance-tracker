@@ -5,6 +5,8 @@ const toast = useToast()
 
 const supabase = useSupabaseClient<Database>()
 
+useAuthGuard()
+
 const success = ref(false)
 
 const pending = ref(false)
@@ -20,7 +22,7 @@ const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithOtp({
       email: state.value.email,
       options: {
-        emailRedirectTo: 'http://localhost:3000',
+        emailRedirectTo: 'http://localhost:3000/confirm',
       },
     })
 
