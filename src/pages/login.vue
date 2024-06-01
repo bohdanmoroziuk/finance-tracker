@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Database } from '~/types'
 
-const toast = useToast()
+const notification = useNotification()
 
 const supabase = useSupabaseClient<Database>()
 
@@ -30,10 +30,8 @@ const handleLogin = async () => {
 
     success.value = true
   } catch (error) {
-    toast.add({
+    notification.error({
       title: (error as Error).message,
-      icon: 'i-heroicons-exclamation-circle',
-      color: 'red',
     })
   } finally {
     pending.value = false

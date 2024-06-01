@@ -13,7 +13,7 @@ interface Emits {
 
 const emit = defineEmits<Emits>()
 
-const toast = useToast()
+const notification = useNotification()
 
 const supabase = useSupabaseClient<Database>()
 
@@ -98,20 +98,16 @@ const submit = async (event: FormSubmitEvent<Schema>) => {
 
     if (error) throw error
 
-    toast.add({
+    notification.success({
       title: 'Transaction has been added',
-      icon: 'i-heroicons-check-circle',
-      color: 'green',
     })
 
     close()
 
     emit('added')
   } catch (error) {
-    toast.add({
+    notification.error({
       title: (error as Error).message,
-      icon: 'i-heroicons-exclamation-circle',
-      color: 'red',
     })
   } finally {
     isLoading.value = false

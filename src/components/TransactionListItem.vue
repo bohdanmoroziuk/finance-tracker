@@ -15,7 +15,7 @@ const emit = defineEmits<Emits>()
 
 const supabase = useSupabaseClient<Database>()
 
-const toast = useToast()
+const notification = useNotification()
 
 const { currency } = useCurrency(props.transaction.amount)
 
@@ -48,16 +48,12 @@ const handleTransactionDelete = async () => {
 
     emit('deleted')
 
-    toast.add({
+    notification.success({
       title: 'Transaction has been deleted',
-      icon: 'i-heroicons-check-circle',
-      color: 'green',
     })
   } catch (error) {
-    toast.add({
+    notification.error({
       title: (error as Error).message,
-      icon: 'i-heroicons-exclamation-circle',
-      color: 'red',
     })
   } finally {
     isLoading.value = false
