@@ -4,7 +4,7 @@ import 'dotenv/config'
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
   {
     auth: {
       persistSession: false,
@@ -15,10 +15,20 @@ const supabase = createClient(
 const categories = ['Food', 'Housing', 'Car', 'Entertainment']
 
 async function seedTransactions() {
+  const { data: { users }, error: usersError } = await supabase
+    .auth
+    .admin
+    .listUsers()
+
+  if (users.length === 0 || usersError) {
+    throw new Error('No users found')
+  }
+
   const { error: deleteError } = await supabase
     .from('transactions')
     .delete()
     .gte('id', 0)
+    .in('user_id', users.map((user) => user.id))
 
   if (deleteError) {
     throw new Error('Error deleting existing data')
@@ -26,51 +36,54 @@ async function seedTransactions() {
 
   let transactions = []
 
-  for (let year = new Date().getFullYear(); year > new Date().getFullYear() - 2; year--) {
-    for (let i = 0; i < 10; i++) {
-      const date = new Date(
-        year,
-        faker.number.int({ min: 0, max: 11 }),
-        faker.number.int({ min: 1, max: 28 })
-      )
+  for (const user of users) {
+    for (let year = new Date().getFullYear(); year > new Date().getFullYear() - 2; year--) {
+      for (let i = 0; i < 10; i++) {
+        const date = new Date(
+          year,
+          faker.number.int({ min: 0, max: 11 }),
+          faker.number.int({ min: 1, max: 28 })
+        )
 
-      let type, category
+        let type, category
 
-      const typeBias = Math.random()
+        const typeBias = Math.random()
 
-      if (typeBias < 0.85) {
-        type = 'expense'
-        category = faker.helpers.arrayElement(categories)
-      } else if (typeBias < 0.95) {
-        type = 'income'
-      } else {
-        type = faker.helpers.arrayElement(['saving', 'investment'])
+        if (typeBias < 0.85) {
+          type = 'expense'
+          category = faker.helpers.arrayElement(categories)
+        } else if (typeBias < 0.95) {
+          type = 'income'
+        } else {
+          type = faker.helpers.arrayElement(['saving', 'investment'])
+        }
+
+        let amount
+
+        switch (type) {
+          case 'income':
+            amount = faker.number.int({ min: 2000, max: 5000 })
+            break
+          case 'expense':
+            amount = faker.number.int({ min: 100, max: 1000 })
+            break
+          case 'saving':
+          case 'investment':
+            amount = faker.number.int({ min: 5000, max: 10000 })
+            break
+          default:
+            amount = 0
+        }
+
+        transactions.push({
+          created_at: date,
+          amount,
+          type,
+          description: faker.lorem.sentence(),
+          category: type === 'expense' ? category : null,
+          user_id: user.id,
+        })
       }
-
-      let amount
-
-      switch (type) {
-        case 'income':
-          amount = faker.number.int({ min: 2000, max: 5000 })
-          break
-        case 'expense':
-          amount = faker.number.int({ min: 100, max: 1000 })
-          break
-        case 'saving':
-        case 'investment':
-          amount = faker.number.int({ min: 5000, max: 10000 })
-          break
-        default:
-          amount = 0
-      }
-
-      transactions.push({
-        created_at: date,
-        amount,
-        type,
-        description: faker.lorem.sentence(),
-        category: type === 'expense' ? category : null
-      })
     }
   }
 
