@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { format } from 'date-fns'
-import { groupBy } from 'lodash'
+import groupBy from 'lodash/groupBy'
 
 import type { Transaction } from '~/types'
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { sumBy } from 'lodash'
+import sumBy from 'lodash/sumBy'
 
 import type { Transaction } from '~/types'
 

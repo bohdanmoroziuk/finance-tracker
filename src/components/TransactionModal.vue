@@ -2,7 +2,7 @@
 import type { Form } from '#ui/types'
 
 import { z } from 'zod'
-import { cloneDeep } from 'lodash'
+import cloneDeep from 'lodash/cloneDeep'
 
 import type { Database, Transaction, TransactionInsert } from '~/types'
 import { typeOptions, categoryOptions } from '~/constants'
