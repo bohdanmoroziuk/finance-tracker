@@ -3,5 +3,12 @@ export default defineNuxtConfig({
   devtools: {
     enabled: false,
   },
-  srcDir: 'src/'
+  srcDir: 'src/',
+  modules: [
+    '@nuxt/ui',
+    '@nuxtjs/supabase',
+  ],
+  supabase: {
+    redirect: true,
+  },
 })
