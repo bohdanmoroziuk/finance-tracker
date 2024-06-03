@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Database } from '~/types'
 
-const { public: { redirectUrl } } = useRuntimeConfig()
+const runtimeConfig = useRuntimeConfig()
 
 const notification = useNotification()
 
@@ -24,7 +24,7 @@ const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithOtp({
       email: state.value.email,
       options: {
-        emailRedirectTo: redirectUrl,
+        emailRedirectTo: `${runtimeConfig.public.baseUrl}/confirm`,
       },
     })
 

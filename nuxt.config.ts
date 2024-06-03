@@ -13,8 +13,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      baseUrl: process.env.BASE_URL,
-      redirectUrl: `${process.env.BASE_URL}/confirm`
-    }
-  }
+      baseUrl: process.env.BASE_URL ?? 'http://localhost:3000',
+    },
+  },
 })
