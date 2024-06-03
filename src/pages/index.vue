@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { viewOptions } from '~/constants'
 
-const view = ref(viewOptions[0])
+const user = useSupabaseUser()
+
+const view = ref(user.value?.user_metadata?.preferences?.view ?? 'monthly')
 
 const modal = ref(false)
 
