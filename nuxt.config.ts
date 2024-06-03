@@ -11,4 +11,10 @@ export default defineNuxtConfig({
   supabase: {
     redirect: true,
   },
+  runtimeConfig: {
+    public: {
+      baseUrl: process.env.BASE_URL,
+      redirectUrl: `${process.env.BASE_URL}/confirm`
+    }
+  }
 })
