@@ -1,4 +1,4 @@
-import { sumBy } from 'lodash';
+import sumBy from 'lodash/sumBy';
 
 import type { Database, Period } from '~/types'
 
