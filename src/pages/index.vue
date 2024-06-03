@@ -104,11 +104,12 @@ const {
     <TransactionList
       :transactions="transactions"
       @transaction-deleted="refresh"
+      @transaction-edited="refresh"
     />
   </template>
 
   <TransactionModal
     v-model="modal"
-    @added="refresh"
+    @submitted="refresh"
   />
 </template>

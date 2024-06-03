@@ -10,6 +10,7 @@ interface Props {
 
 interface Emits {
   (event: 'transaction-deleted'): void
+  (event: 'transaction-edited'): void
 }
 
 type TransactionsGroupedByDate = Record<string, Transaction[]>
@@ -26,6 +27,10 @@ const transactionsGroupedByDate = computed<TransactionsGroupedByDate>(() => {
 
 const transactionDeleted = () => {
   emit('transaction-deleted')
+}
+
+const transactionEdited = () => {
+  emit('transaction-edited')
 }
 </script>
 
@@ -45,6 +50,7 @@ const transactionDeleted = () => {
         :key="transaction.id"
         :transaction="transaction"
         @deleted="transactionDeleted"
+        @edited="transactionEdited"
       />
     </div>
   </section>

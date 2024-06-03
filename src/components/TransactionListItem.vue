@@ -7,6 +7,7 @@ interface Props {
 
 interface Emits {
   (event: 'deleted'): void
+  (event: 'edited'): void
 }
 
 const props = defineProps<Props>()
@@ -16,6 +17,8 @@ const emit = defineEmits<Emits>()
 const supabase = useSupabaseClient<Database>()
 
 const notification = useNotification()
+
+const modal = ref(false)
 
 const { currency } = useCurrency(props.transaction.amount)
 
@@ -32,6 +35,10 @@ const iconClass = computed(() => {
 })
 
 const isLoading = ref(false)
+
+const startEditingTransaction = () => {
+  modal.value = true
+}
 
 const handleTransactionDelete = async () => {
   isLoading.value = true
@@ -65,9 +72,7 @@ const items = [
     {
       label: 'Edit',
       icon: 'i-heroicons-pencil-square-20-solid',
-      click: () => {
-        console.log('Edit')
-      },
+      click: startEditingTransaction,
     },
     {
       label: 'Delete',
@@ -118,4 +123,10 @@ const items = [
       </div>
     </div>
   </div>
+
+  <TransactionModal
+    v-model="modal"
+    :transaction="transaction"
+    @submitted="emit('edited')"
+  />
 </template>

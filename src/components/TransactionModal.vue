@@ -1,21 +1,37 @@
 <script setup lang="ts">
-import type { FormSubmitEvent, Form } from '#ui/types'
+import type { Form } from '#ui/types'
 
 import { z } from 'zod'
 import { cloneDeep } from 'lodash'
 
-import type { Database, TransactionInsert } from '~/types'
+import type { Database, Transaction, TransactionInsert } from '~/types'
 import { typeOptions, categoryOptions } from '~/constants'
 
-interface Emits {
-  (event: 'added'): void
+interface Props {
+  transaction?: Transaction
 }
+
+interface Emits {
+  (event: 'submitted'): void
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
 const notification = useNotification()
 
 const supabase = useSupabaseClient<Database>()
+
+const isEditing = computed(() => {
+  return !!props.transaction
+})
+
+const title = computed(() => {
+  return isEditing.value
+    ? 'Edit Transaction'
+    : 'Add Transaction'
+})
 
 const isOpen = defineModel<boolean>({ required: true })
 
@@ -61,20 +77,28 @@ const schema = z.intersection(
   defaultSchema,
 )
 
-type Schema = z.output<typeof schema>
+const initialState = computed(() => {
+  return isEditing.value
+    ? {
+        type: props.transaction!.type,
+        amount: props.transaction!.amount,
+        created_at: props.transaction!.created_at.split('T')[0],
+        description: props.transaction!.description,
+        category: props.transaction!.category,
+      }
+    : {
+        type: 'income',
+        amount: 0,
+        created_at: undefined,
+        description: undefined,
+        category: undefined,
+      }
+})
 
-const initialState = {
-  type: 'income',
-  amount: 0,
-  created_at: undefined,
-  description: undefined,
-  category: undefined,
-}
-
-const state = ref<TransactionInsert>(cloneDeep(initialState))
+const state = ref<TransactionInsert>(cloneDeep(initialState.value))
 
 const resetState = () => {
-  state.value = cloneDeep(initialState)
+  state.value = cloneDeep(initialState.value)
 }
 
 const close = () => {
@@ -86,7 +110,7 @@ const close = () => {
 
 const isLoading = ref(false)
 
-const submit = async (event: FormSubmitEvent<Schema>) => {
+const submit = async () => {
   if (hasErrors.value) return
 
   isLoading.value = true
@@ -94,7 +118,14 @@ const submit = async (event: FormSubmitEvent<Schema>) => {
   try {
     const { error } = await supabase
       .from('transactions')
-      .upsert(state.value)
+      .upsert({
+        ...state.value,
+        ...(
+          isEditing.value
+            ? { id: props.transaction!.id }
+            : {}
+        )
+      })
 
     if (error) throw error
 
@@ -104,7 +135,7 @@ const submit = async (event: FormSubmitEvent<Schema>) => {
 
     close()
 
-    emit('added')
+    emit('submitted')
   } catch (error) {
     notification.error({
       title: (error as Error).message,
@@ -124,7 +155,7 @@ const submit = async (event: FormSubmitEvent<Schema>) => {
       <template #header>
         <div class="flex items-center justify-between">
           <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
-            Add Transaction
+            {{ title }}
           </h3>
           <UButton
             color="gray"
@@ -152,6 +183,7 @@ const submit = async (event: FormSubmitEvent<Schema>) => {
             <USelect
               v-model="state.type"
               :options="typeOptions"
+              :disabled="isEditing"
               placeholder="Select the transaction type"
             />
           </UFormGroup>
