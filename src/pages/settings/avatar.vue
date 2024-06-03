@@ -7,6 +7,8 @@ const user = useSupabaseUser()
 
 const notification = useNotification()
 
+const avatar = useAvatar()
+
 const uploading = ref(false)
 
 const fileInput = ref()
@@ -91,7 +93,7 @@ const saveAvatar = async () => {
       help="This would be blank by default"
     >
       <UAvatar
-        src="https://avatars.githubusercontent.com/u/739984?v=4"
+        :src="avatar.url"
         size="3xl"
       />
     </UFormGroup>

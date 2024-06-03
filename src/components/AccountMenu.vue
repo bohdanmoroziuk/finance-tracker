@@ -3,6 +3,8 @@ const user = useSupabaseUser()
 
 const supabase = useSupabaseClient()
 
+const avatar = useAvatar()
+
 const handleLogout = async () => {
   await supabase.auth.signOut()
 
@@ -40,7 +42,7 @@ const items = [
     :ui="{ item: { disabled: 'cursor-text select-text' }, width: 'w-64' }"
   >
     <UAvatar
-      src="https://avatars.githubusercontent.com/u/739984?v=4"
+      :src="avatar.url"
       alt="Avatar"
     />
 
